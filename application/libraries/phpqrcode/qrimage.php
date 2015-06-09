@@ -43,7 +43,7 @@
                     ImagePng($image, $filename);
                 }
             }
-            
+
             ImageDestroy($image);
         }
     

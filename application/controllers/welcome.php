@@ -1,7 +1,15 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+//require_once APPPATH."helpers/MY_qrcode_helper.php";
+//require_once APPPATH."libraries/phpqrcode/phpqrcode.php";
 
 class Welcome extends CI_Controller {
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->load->helper("MY_qrcode_helper");
+    }
 
 	/**
 	 * Index Page for this controller.
@@ -22,4 +30,10 @@ class Welcome extends CI_Controller {
 	{
 		$this->load->view('welcome_message');
 	}
+
+    public function qrcode()
+    {
+        $text = "hehe";
+        qrcode($text);
+    }
 }

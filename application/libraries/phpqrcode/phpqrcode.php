@@ -956,7 +956,35 @@
             
             ImageDestroy($image);
         }
-    
+        //*********************************************************************************************************************
+        //自定义生成带Logo的二维码图片
+        public static function pngWithLogo($frame, $logo_path = false, $pixelPerPoint = 4, $outerFrame = 4)
+        {
+            $QR = self::image($frame, $pixelPerPoint, $outerFrame);
+
+            if($logo_path)
+            {
+                $logo = imagecreatefromstring(file_get_contents($logo_path));
+                $QR_width = imagesx($QR);//二维码图片宽度
+                $QR_height = imagesy($QR);//二维码图片高度
+                $logo_width = imagesx($logo);//logo图片宽度
+                $logo_height = imagesy($logo);//logo图片高度
+
+                $logo_qr_width = $QR_width / 5;
+                $scale = $logo_width/$logo_qr_width;
+                $logo_qr_height = $logo_height/$scale;
+                $from_width = ($QR_width - $logo_qr_width) / 2;
+
+                imagecopyresampled($QR, $logo, $from_width, $from_width, 0, 0, $logo_qr_width,
+                    $logo_qr_height, $logo_width, $logo_height);
+            }
+
+            Header("Content-type: image/png");
+            ImagePng($QR);
+
+
+            ImageDestroy($QR);
+        }
         //----------------------------------------------------------------------
         public static function jpg($frame, $filename = false, $pixelPerPoint = 8, $outerFrame = 4, $q = 85) 
         {
@@ -3092,6 +3120,13 @@
             $enc = QRencode::factory($level, $size, $margin);
             return $enc->encodePNG($text, $outfile, $saveandprint=false);
         }
+        //***************************************************************************************************
+        public static function pngWithLogo($text,$logo_path,$level = QR_ECLEVEL_L, $size = 3, $margin = 4)
+        {
+            $enc = QRencode::factory($level, $size, $margin);
+            return $enc->encodePNGWithLogo($text, $logo_path);
+        }
+
 
         //----------------------------------------------------------------------
         public static function text($text, $outfile = false, $level = QR_ECLEVEL_L, $size = 3, $margin = 4) 
@@ -3298,7 +3333,7 @@
                 
                 $maxSize = (int)(QR_PNG_MAXIMUM_SIZE / (count($tab)+2*$this->margin));
                 
-                QRimage::png($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint);
+               QRimage::png($tab, $outfile, min(max(1, $this->size), $maxSize), $this->margin,$saveandprint);
             
             } catch (Exception $e) {
             
@@ -3306,6 +3341,31 @@
             
             }
         }
+
+        //----------------------------------------------------------------------
+        public function encodePNGWithLogo($intext, $logo_path = false)
+        {
+            try {
+
+                ob_start();
+                $tab = $this->encode($intext);
+                $err = ob_get_contents();
+                ob_end_clean();
+
+//                if ($err != '')
+//                    QRtools::log($logo_path, $err);
+
+                $maxSize = (int)(QR_PNG_MAXIMUM_SIZE / (count($tab)+2*$this->margin));
+
+                QRimage::pngWithLogo($tab, $logo_path, min(max(1, $this->size), $maxSize), $this->margin);
+
+            } catch (Exception $e) {
+
+                // QRtools::log($logo_path, $e->getMessage());
+
+            }
+        }
+
     }
 
 
