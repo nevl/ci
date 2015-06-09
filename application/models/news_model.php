@@ -8,7 +8,7 @@ class News_model extends CI_Model{
 		//调用父类构造函数，必不可少
 		parent::__construct();
 		//手动载入数据库操作类
-		$this->load->database();
+		//$this->load->database();
 	}
 
 	/**
@@ -29,4 +29,9 @@ class News_model extends CI_Model{
 		$query = $this->db->get(self::TBL);
 		return $query->result_array();
 	}
+
+    public function get_qrcode(){
+
+        return QRcode::png("first test");
+    }
 }
